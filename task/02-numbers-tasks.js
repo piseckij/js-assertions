@@ -13,7 +13,7 @@
 /**
  * Returns an area of a rectangle given by width and heigth.
  *
- * @param {numder} width
+ * @param {number} width
  * @param {number} height
  * @return {number}
  *
@@ -44,7 +44,7 @@ function getCicleCircumference(radius) {
 /**
  * Returns an average of two given numbers.
  *
- * @param {numder} value1
+ * @param {number} value1
  * @param {number} value2
  * @return {number}
  *
@@ -54,7 +54,7 @@ function getCicleCircumference(radius) {
  *  -3, 3  => 0
  */
 function getAverage(value1, value2) {
-    return (value1 + value2) / 2;
+    return value1 / 2 + value2 / 2;
 }
 
 /**
@@ -89,7 +89,7 @@ function getDistanceBetweenPoints(x1, y1, x2, y2) {
  *   5*x = 0         => 0
  */
 function getLinearEquationRoot(a, b) {
-    return Math.sqrt(a*a - 4*a*b);
+    return -b / a;
 }
 
 
@@ -111,7 +111,7 @@ function getLinearEquationRoot(a, b) {
  *   (0,1) (1,2)     => 0
  */
 function getAngleBetweenVectors(x1, y1, x2, y2) {
-    throw new Error('Not implemented');
+    Math.acos()
 }
 
 /**
@@ -127,7 +127,7 @@ function getAngleBetweenVectors(x1, y1, x2, y2) {
  *     0     => 0
  */
 function getLastDigit(value) {
-    return 0 + value.toString().charAt(-1);
+    return value % 10;
 }
 
 
@@ -143,7 +143,7 @@ function getLastDigit(value) {
  * '-525.5'     => -525.5
  */
 function parseNumberFromString(value) {
-    throw new Error('Not implemented');
+    return Number.parseFloat(value);
 }
 
 /**
@@ -160,7 +160,7 @@ function parseNumberFromString(value) {
  *   1,2,3   => 3.741657386773941
  */
 function getParallelipidedDiagonal(a,b,c) {
-    throw new Error('Not implemented');
+    return Math.sqrt(a*a + b *b + c*c);
 }
 
 /**
@@ -181,7 +181,9 @@ function getParallelipidedDiagonal(a,b,c) {
  *   1678, 3  => 2000
  */
 function roundToPowerOfTen(num, pow) {
-    throw new Error('Not implemented');
+    let div = Math.pow(10, pow);
+    let temp = num / div;
+    return Math.round(temp) * div;
 }
 
 /**
@@ -189,7 +191,7 @@ function roundToPowerOfTen(num, pow) {
  * See: https://en.wikipedia.org/wiki/Primality_test
  *
  * @param {number} n
- * @return {bool}
+ * @return {boolean}
  * 
  * @example:
  *   4 => false
@@ -202,7 +204,13 @@ function roundToPowerOfTen(num, pow) {
  *   17 => true
  */
 function isPrime(n) {
-    throw new Error('Not implemented');
+    for (let i = 2; i < n/2 + 1; i++) {
+        if (n % i === 0) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -221,7 +229,12 @@ function isPrime(n) {
  *   toNumber(new Number(42), 0) => 42
  */
 function toNumber(value, def) {
-    throw new Error('Not implemented');
+    let num = Number.parseFloat(value);
+    if (!isNaN(num)) {
+        return num;
+    }
+
+    return def;
 }
 
 module.exports = {
