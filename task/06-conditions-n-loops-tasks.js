@@ -396,25 +396,25 @@ function isBracketsBalanced(str) {
  *
  */
 function timespanToHumanString(startDate, endDate) {
-    throw new Error('Not implemented');
-    // const duration = endDate - startDate;
-    // const seconds = duration / 1000;
-    // const minutes = seconds / 60;
-    // const hours = minutes / 60;
-    // const days = hours / 24;
-    // const months = days / 30;
-    // const years = days / 365;
-    // if (seconds <= 45) return 'a few seconds ago';
-    // if (seconds <= 90) return 'a minute ago';
-    // if (seconds <= 45 * 60) return `${Math.floor(minutes)} minutes ago`;
-    // if (minutes <= 90) return 'an hour ago';
-    // if (hours <= 22) return `${hours} hours ago`;
-    // if (hours <= 36) return 'a day ago';
-    // if (days <= 25) return `${days} days ago`;
-    // if (days <= 45) return 'a month ago';
-    // if (days <= 345) return `${months} months ago`;
-    // if (days <= 545) return 'a year ago';
-    // else return `${years} ago`;
+    let f = (num) => Math.floor(num) + ((num - Math.trunc(num)) > 0.5 ? 1 : 0);
+    const second = 1000;
+    const minute = 60 * second;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const month = 30 * day;
+    const year = 365 * day;
+    const duration = endDate - startDate;
+    if (duration / second <= 45) return 'a few seconds ago';
+    if (duration / second <= 90) return 'a minute ago';
+    if (duration / minute <= 45) return `${f(duration / minute)} minutes ago`;
+    if (duration / minute <= 90) return 'an hour ago';
+    if (duration / hour <= 22) return `${f(duration / hour)} hours ago`;
+    if (duration / hour <= 36) return 'a day ago';
+    if (duration / day <= 25) return `${f(duration/day)} days ago`;
+    if (duration / day <= 45) return 'a month ago';
+    if (duration / day <= 345) return `${f(duration/month)} months ago`;
+    if (duration / day <= 545) return 'a year ago';
+    else return `${f(duration / year)} years ago`;
 }
 
 
