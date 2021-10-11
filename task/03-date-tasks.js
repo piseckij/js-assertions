@@ -86,7 +86,7 @@ function timeSpanToString(startDate, endDate) {
  * Returns the angle (in radians) between the hands of an analog clock for the specified Greenwich time.
  * If you have problem with solution please read: https://en.wikipedia.org/wiki/Clock_angle_problem
  * 
- * @param {date} date
+ * @param {Date} date
  * @return {number}
  *
  * @example:
@@ -96,7 +96,14 @@ function timeSpanToString(startDate, endDate) {
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
 function angleBetweenClockHands(date) {
-    throw new Error('Not implemented');
+    let hours = date.getUTCHours() % 12;
+    let minutes = date.getUTCMinutes();
+    let hoursAngle = 0.5 * (60 * hours + minutes);
+    let minutesAngle = 6 * minutes;
+    let angle = Math.abs(hoursAngle - minutesAngle);
+    angle = angle > 180 ? (360 - angle) : angle;
+
+    return (Math.PI * angle) / 180;
 }
 
 
