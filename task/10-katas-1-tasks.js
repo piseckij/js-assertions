@@ -17,8 +17,13 @@
  *  ]
  */
 function createCompassPoints() {
-    throw new Error('Not implemented');
-    var sides = ['N','E','S','W'];  // use array of cardinal directions only!
+    var sides = ['N', 'E', 'S', 'W'];
+    sides.splice(sides.indexOf('N') + 1, 0, 'NbE', 'NNE', 'NEbN', 'NE', 'NEbE', 'ENE', 'EbN');
+    sides.splice(sides.indexOf('E') + 1, 0, 'EbS', 'ESE', 'SEbE', 'SE', 'SEbS', 'SSE', 'SbE');
+    sides.splice(sides.indexOf('S') + 1, 0, 'SbW', 'SSW', 'SWbS', 'SW', 'SWbW', 'WSW', 'WbS');
+    sides.splice(sides.indexOf('W') + 1, 0, 'WbN', 'WNW', 'NWbW', 'NW', 'NWbN', 'NNW', 'NbW');
+
+    return sides.map((side, i) => ({abbreviation: side, azimuth: (11.25 * i)}));
 }
 
 
@@ -56,7 +61,23 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    const regex = /{[^{}]+}/;
+    const input = [str];
+    while (input.length > 0) {
+        let str = input.shift();
+        let match = str.match(regex);
+        if (match) {
+            let variants = match[0].slice(1, -1).split(',');
+            for (const variant of variants) {
+                let replaced = str.replace(match[0], variant);
+                if (!input.includes(replaced)) {
+                    input.push(replaced)
+                }
+            }
+        } else {
+            yield str;
+        }
+    }
 }
 
 
@@ -88,7 +109,33 @@ function* expandBraces(str) {
  *
  */
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
+    let arr = new Array(n).fill(0).map(() => []);
+    let m = n - 1;
+    arr[0][0] = 0;
+    arr[m][m] = n * n - 1;
+
+    for (let i = 1; i < n; i++) {
+        if (i % 2 === 1) {
+            arr[0][i] = arr[0][i - 1] + 1;
+            for (let j = 1; j <= i; j++) {
+                arr[j][i - j] = arr[0][i] + j;
+            }
+            arr[m][m - i] = arr[m][m - i + 1] - 1;
+            for (let j = 1; j <= i; j++) {
+                arr[m - j][m - i + j] = arr[m][m - i] - j;
+            }
+        } else {
+            arr[i][0] = arr[i - 1][0] + 1;
+            for (let j = 1; j <= i; j++) {
+                arr[i - j][j] = arr[i][0] + j;
+            }
+            arr[m - i][m] = arr[m - i + 1][m] - 1;
+            for (let j = 1; j <= i; j++) {
+                arr[m - i + j][m - j] = arr[m - i][m] - j;
+            }
+        }
+    }
+    return arr;
 }
 
 
@@ -102,7 +149,7 @@ function getZigZagMatrix(n) {
  * NOTE that as in usual dominoes playing any pair [i, j] can also be treated as [j, i].
  *
  * @params {array} dominoes
- * @return {bool}
+ * @return {boolean}
  *
  * @example
  *
@@ -113,7 +160,29 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
+    let copy = [...dominoes];
+    let domino = copy.shift();
+    while (copy.length > 0) {
+        let pairIndex = copy.findIndex(pair => {
+            return domino[0] === pair[0]
+                || domino[0] === pair[1]
+                || domino[1] === pair[0]
+                || domino[1] === pair[1];
+        });
+        if (pairIndex === -1) break;
+        let pair = copy.splice(pairIndex, 1)[0];
+        if (domino[0] === pair[0]) {
+            domino = [domino[1], pair[1]];
+        } else if (domino[0] === pair[1]) {
+            domino = [domino[1], pair[0]];
+        } else if (domino[1] === pair[0]) {
+            domino = [domino[0], pair[1]];
+        } else {
+            domino = [domino[0], pair[0]];
+        }
+    }
+
+    return copy.length === 0;
 }
 
 
@@ -127,7 +196,7 @@ function canDominoesMakeRow(dominoes) {
  *     The range syntax is to be used only for, and for every range that expands to more than two values.
  *
  * @params {array} nums
- * @return {bool}
+ * @return {string}
  *
  * @example
  *
@@ -137,7 +206,27 @@ function canDominoesMakeRow(dominoes) {
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let ranges = [];
+    let range = [nums[0]];
+    for (let i = 1; i < nums.length; i++) {
+        if ((nums[i - 1] + 1) === nums[i]) {
+            range.push(nums[i]);
+        } else {
+            ranges.push(range);
+            range = [nums[i]];
+        }
+    }
+    ranges.push(range);
+
+    return ranges
+        .map(r => {
+            if (r.length > 2) {
+                return r[0] + '-' + r[r.length - 1];
+            } else {
+                return r.join();
+            }
+        })
+        .join();
 }
 
 module.exports = {
