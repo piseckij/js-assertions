@@ -160,29 +160,21 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
+    if (dominoes.length === 0 || dominoes.length === 1) return true;
+
     let copy = [...dominoes];
     let domino = copy.shift();
-    while (copy.length > 0) {
-        let pairIndex = copy.findIndex(pair => {
-            return domino[0] === pair[0]
-                || domino[0] === pair[1]
-                || domino[1] === pair[0]
-                || domino[1] === pair[1];
-        });
-        if (pairIndex === -1) break;
-        let pair = copy.splice(pairIndex, 1)[0];
-        if (domino[0] === pair[0]) {
-            domino = [domino[1], pair[1]];
-        } else if (domino[0] === pair[1]) {
-            domino = [domino[1], pair[0]];
-        } else if (domino[1] === pair[0]) {
-            domino = [domino[0], pair[1]];
-        } else {
-            domino = [domino[0], pair[0]];
-        }
-    }
+    let pairIndex = copy.findIndex(pair => pair.includes(domino[0]) || pair.includes(domino[1]));
+    if (pairIndex === -1) return false;
 
-    return copy.length === 0;
+    let pair = copy.splice(pairIndex, 1)[0];
+    let variants = [];
+    if (domino[0] === pair[0]) variants.push([domino[1], pair[1]]);
+    if (domino[0] === pair[1]) variants.push([domino[1], pair[0]]);
+    if (domino[1] === pair[0]) variants.push([domino[0], pair[1]]);
+    if (domino[1] === pair[1]) variants.push([domino[0], pair[0]]);
+
+    return variants.some(variant => canDominoesMakeRow([variant, ...copy]));
 }
 
 
