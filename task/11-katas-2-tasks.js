@@ -34,7 +34,30 @@
  *
  */
 function parseBankAccount(bankAccount) {
-    throw new Error('Not implemented');
+    let map = {
+        ' _ \n| |\n|_|': '0',
+        '   \n  |\n  |': '1',
+        ' _ \n _|\n|_ ': '2',
+        ' _ \n _|\n _|': '3',
+        '   \n|_|\n  |': '4',
+        ' _ \n|_ \n _|': '5',
+        ' _ \n|_ \n|_|': '6',
+        ' _ \n  |\n  |': '7',
+        ' _ \n|_|\n|_|': '8',
+        ' _ \n|_|\n _|': '9',
+    };
+    let rows = bankAccount.split('\n');
+    let result = '';
+    for (let i = 0; i < 9; i++) {
+        let key = [
+            rows[0].slice(3 * i, 3 * i + 3),
+            rows[1].slice(3 * i, 3 * i + 3),
+            rows[2].slice(3 * i, 3 * i + 3)
+        ]
+            .join('\n');
+        result += map[key];
+    }
+    return Number.parseInt(result);
 }
 
 
@@ -63,7 +86,19 @@ function parseBankAccount(bankAccount) {
  *                                                                                                'characters.'
  */
 function* wrapText(text, columns) {
-    throw new Error('Not implemented');
+    while (text.length > columns) {
+        let wordBoundary = text.length;
+        for (let i = 1; i <= columns; i++) {
+            let c = text.charAt(i);
+            if (c === ' ') {
+                wordBoundary = i;
+            }
+        }
+        yield text.substring(0, wordBoundary);
+        text = text.substr(wordBoundary + 1);
+    }
+
+    yield text;
 }
 
 
@@ -100,7 +135,45 @@ const PokerRank = {
 }
 
 function getPokerHandRank(hand) {
-    throw new Error('Not implemented');
+    const order = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const isFlush = (suitsMap) => Object.values(suitsMap).every(count => count === 5);
+    const isStraight = (valuesMap, aceLast) => Object.keys(valuesMap).length === 5
+        && Object.keys(valuesMap)
+            .map(v => order.indexOf(v, aceLast ? 1 : 0))
+            .sort((a, b) => a - b)
+            .every((v, i, arr) => {
+                return (arr[i] - arr[0]) === i;
+            });
+    const isFourOfKind = (valuesMap) => Object.values(valuesMap).find(count => count === 4);
+    const isFullHouse = (valuesMap) => isThreeOfKind(valuesMap) && isPair(valuesMap);
+    const isThreeOfKind = (valuesMap) => Object.values(valuesMap).find(count => count === 3);
+    const isTwoPairs = (valuesMap) => Object.values(valuesMap).filter(count => count === 2).length === 2;
+    const isPair = (valuesMap) => Object.values(valuesMap).find(count => count === 2);
+
+    let suits = hand.reduce((suits, card) => {
+        let suit = card.substr(-1, 1);
+        suits[suit] = (suits[suit] || 0) + 1;
+        return suits;
+    }, {});
+    let values = hand.reduce((values, card) => {
+        let value = card.substr(0, card.length - 1);
+        values[value] = (values[value] || 0) + 1;
+        return values;
+    }, {});
+
+    if (isStraight(values) || isStraight(values, true)) {
+        return isFlush(suits)
+            ? PokerRank.StraightFlush
+            : PokerRank.Straight;
+    }
+    if (isFlush(suits)) return PokerRank.Flush;
+    if (isFourOfKind(values)) return PokerRank.FourOfKind;
+    if (isFullHouse(values)) return PokerRank.FullHouse;
+    if (isThreeOfKind(values)) return PokerRank.ThreeOfKind;
+    if (isTwoPairs(values)) return PokerRank.TwoPairs;
+    if (isPair(values)) return PokerRank.OnePair;
+
+    return PokerRank.HighCard;
 }
 
 
@@ -110,10 +183,10 @@ function getPokerHandRank(hand) {
  * The task is to break the figure in the rectangles it is made of.
  *
  * NOTE: The order of rectanles does not matter.
- * 
+ *
  * @param {string} figure
  * @return {Iterable.<string>} decomposition to basic parts
- * 
+ *
  * @example
  *
  *    '+------------+\n'+
@@ -135,12 +208,49 @@ function getPokerHandRank(hand) {
  *    '+-------------+\n'
  */
 function* getFigureRectangles(figure) {
-   throw new Error('Not implemented');
+    let rows = figure
+        .split('\n')
+        .map(row => [...row]);
+    const isTopLeft = (top, left) => rows[top][left] === '+'
+        && (rows[top + 1][left] === '|' || rows[top + 1][left] === '+')
+        && (rows[top][left + 1] === '-' || rows[top][left + 1] === '+');
+    const getWidth = (top, left) => {
+        for (let i = left + 1; i < rows[top].length; i++) {
+            if (rows[top][i] === '+' && (rows[top + 1][i] === '|' || rows[top + 1][i] === '+')) {
+                return i - left + 1;
+            }
+        }
+        return 0;
+    }
+    const getHeight = (top, left) => {
+        for (let i = top + 1; i < rows.length; i++) {
+            if (rows[i][left] === '+' && (rows[i][left + 1] === '-' || rows[i][left + 1] === '+')) {
+                return i - top + 1;
+            }
+        }
+        return 0;
+    }
+    const buildRect = (top, left, width, height) => {
+        return '+' + '-'.repeat(width - 2) + '+\n'
+            + ('|' + ' '.repeat(width - 2) + '|\n').repeat(height - 2)
+            + '+' + '-'.repeat(width - 2) + '+\n';
+    }
+    for (let top = 0; top < rows.length; top++) {
+        for (let left = 0; left < rows[top].length; left++) {
+            if (isTopLeft(top, left)) {
+                const width = getWidth(top, left);
+                const height = getHeight(top, left);
+                if (width && height) {
+                    yield buildRect(top, left, width, height);
+                }
+            }
+        }
+    }
 }
 
 
 module.exports = {
-    parseBankAccount : parseBankAccount,
+    parseBankAccount: parseBankAccount,
     wrapText: wrapText,
     PokerRank: PokerRank,
     getPokerHandRank: getPokerHandRank,
